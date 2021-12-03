@@ -15,30 +15,33 @@ export const fadeInLines = (line: string, dir: Directive, duration = 0.85) => {
 }
 
 export class AnimationSequence {
-    count: number;
-    animations: Array<() => gsap.core.Timeline>;
-    currentAnimation: gsap.core.Timeline;
-    previousAnimation: gsap.core.Timeline;
+    index: number;
+    animations: Array<gsap.core.Timeline>;
+    current: gsap.core.Timeline
 
-    constructor(animations: Array<() => gsap.core.Timeline>, count = 0) {
-        this.count = count;
-        this.animations = animations;
+    constructor( timeline?: (() => gsap.core.Timeline)[] ) {
+        this.index = 0
+        this.animations = !timeline ? [] : timeline.map( func => func() )
+        this.current = this.animations[this.index]
     }
 
-    get nextAnimation(): gsap.core.Timeline {
-        this.previousAnimation = this.currentAnimation;
-        this.currentAnimation = this.animations[++this.count]();
+    tranition ( onNext: (arg0: number) => number, onReverseComplete?: () => void ) {
+        this.current
+            .reverse()
+            .eventCallback(
+                'onReverseComplete', 
+                () => {
+                    onReverseComplete()
+                    this.index = onNext(this.index)
+                    this.current = this.animations[ this.index ]
+                    this.current.play()
+                }
+            )
+    }
 
-        return this.currentAnimation;
-    }
-    get prevAnimation(): gsap.core.Timeline {
-        this.count--;
-        console.log('Getting previous animation', this.count);
-        this.currentAnimation = this.previousAnimation;
-        return this.previousAnimation;
-    }
-    init(): void {
-        this.currentAnimation = this.animations[this.count]();
+    refresh( timeline: (() => gsap.core.Timeline)[] ): void {
+        this.animations = timeline.map( func => func() )
+        this.current = this.animations[this.index]
     }
 
 }

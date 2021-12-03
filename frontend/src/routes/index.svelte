@@ -47,26 +47,24 @@
 		console.log('Switched section visability to', sectionId);
 	}
 	function nextAnimation(event: Event) {
-		 homeAnimation.currentAnimation.reverse().eventCallback('onReverseComplete', () => {
-			switchSectionVisability('section--2');
-			homeAnimation.nextAnimation.play();
-		});
+		homeAnimation.transition(
+			index => index + 1,
+			() => switchSectionVisability('section--2')
+		)
 		console.log('Going to next animation');
 	}
 
 	function previousAnimation(event: Event) {
-		homeAnimation.currentAnimation.reverse().eventCallback('onReverseComplete', () => {
-			switchSectionVisability('section--1');
-			homeAnimation.prevAnimation.play();
-		});
+		homeAnimation.transition(
+			index => index - 1,
+			() => switchSectionVisability('section--1')
+		)
 	}
 
 	onMount(() => {
 		rendered = true;
-		homeAnimation.animations = [heroAnimation, showcaseAnimation];
-		homeAnimation.init();
-		homeAnimation.currentAnimation.play();
-		// $currentAnimation = sections[0];
+		homeAnimation.refresh( [heroAnimation, showcaseAnimation] );
+		homeAnimation.current.play();
 
 		switchSectionVisability('section--1');
 		const timeline = gsap.timeline({ delay: 0.5 });
@@ -74,9 +72,6 @@
 		timeline.add(fadeInLines('.line--vert', 'vertical'));
 	});
 
-	// $: if (rendered && $currentAnimation) {
-	// 	switchSectionVisability($currentAnimation);
-	// }
 </script>
 
 <div class="grid">
