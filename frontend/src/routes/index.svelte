@@ -37,7 +37,7 @@
 
 	let rendered = false;
 	const sections = ['section--1', 'section--2', 'section--3'];
-	const homeAnimation = new AnimationSequence([], 0);
+	const homeAnimation = new AnimationSequence([]);
 
 	function switchSectionVisability(sectionId) {
 		document.querySelectorAll('section').forEach((elem) => {

@@ -25,7 +25,7 @@ export class AnimationSequence {
         this.current = this.animations[this.index]
     }
 
-    tranition ( onNext: (arg0: number) => number, onReverseComplete?: () => void ) {
+    transition ( onNext: (arg0: number) => number, onReverseComplete?: () => void ) {
         this.current
             .reverse()
             .eventCallback(
