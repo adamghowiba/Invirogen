@@ -6,8 +6,6 @@ export const globalOptions = {
     duration: 0.45
 }
 
-export const globalTimeline = gsap.timeline();
-
 export const fadeInLines = (line: string, dir: Directive, duration = 0.85) => {
     return gsap.from(line, {
         width: dir == 'horizontal' ? 0 : null,
@@ -16,17 +14,31 @@ export const fadeInLines = (line: string, dir: Directive, duration = 0.85) => {
     })
 }
 
-let animations;
-let currentAnimation = 0;
-export const controller = () => {
-    
-    return {
-        previous: ()=> {
-            currentAnimation--;
-        },
-        next: () => {
-            currentAnimation++;
-        }
-    }
-}
+export class AnimationSequence {
+    count: number;
+    animations: Array<() => gsap.core.Timeline>;
+    currentAnimation: gsap.core.Timeline;
+    previousAnimation: gsap.core.Timeline;
 
+    constructor(animations: Array<() => gsap.core.Timeline>, count = 0) {
+        this.count = count;
+        this.animations = animations;
+    }
+
+    get nextAnimation(): gsap.core.Timeline {
+        this.previousAnimation = this.currentAnimation;
+        this.currentAnimation = this.animations[++this.count]();
+
+        return this.currentAnimation;
+    }
+    get prevAnimation(): gsap.core.Timeline {
+        this.count--;
+        console.log('Getting previous animation', this.count);
+        this.currentAnimation = this.previousAnimation;
+        return this.previousAnimation;
+    }
+    init(): void {
+        this.currentAnimation = this.animations[this.count]();
+    }
+
+}

@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { gsap } from 'gsap';
-	import { globalTimeline } from '$lib/animations/controller';
 	import Button from '$lib/global/Button.svelte';
 	import type { AnimationPhase } from '$lib/types/type';
+import { currentAnimation } from '$lib/stroes/animation';
 
-	export let animation: (phase: AnimationPhase) => void;
+	export let animation;
+	$currentAnimation = [...$currentAnimation, animation];
 	let img, header;
 
-	const inAnimation = () => {
-		const timeline = gsap.timeline();
+	animation = () => {
+		const timeline = gsap.timeline({paused: true});
 
 		timeline.from(img, {
 			width: 0,
@@ -40,9 +41,9 @@
 		return timeline;
 	};
 
-	animation = (phase: AnimationPhase) => {
-		return phase == 'in' ? inAnimation() : outAnimation();
-	};
+	// animation = (phase: AnimationPhase) => {
+	// 	return phase == 'in' ? inAnimation() : outAnimation();
+	// };
 </script>
 
 <section id="section--2">

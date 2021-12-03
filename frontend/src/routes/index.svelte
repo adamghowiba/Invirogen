@@ -25,16 +25,19 @@
 		Circ
 	} from 'gsap';
 	import { onMount } from 'svelte';
-	import { fadeInLines, globalTimeline } from '$lib/animations/controller';
+	import { fadeInLines } from '$lib/animations/controller';
 	import type { AnimationPhase } from '$lib/types/type';
 	import Showcase from '$lib/home/Showcase.svelte';
 	import { currentAnimation } from '$lib/stroes/animation';
+	import { AnimationSequence } from '$lib/animations/controller';
+	import Home from '$lib/layouts/home.svelte';
 
-	let heroAnimation: (phase: AnimationPhase) => gsap.core.TimelineChild;
-	let showcaseAnimation: (phase: AnimationPhase) => gsap.core.TimelineChild;
+	let heroAnimation;
+	let showcaseAnimation;
 
-	const sections = ['section--1', 'section--2', 'section--3'];
 	let rendered = false;
+	const sections = ['section--1', 'section--2', 'section--3'];
+	const homeAnimation = new AnimationSequence([], 0);
 
 	function switchSectionVisability(sectionId) {
 		document.querySelectorAll('section').forEach((elem) => {
@@ -43,30 +46,37 @@
 		});
 		console.log('Switched section visability to', sectionId);
 	}
-
-	onMount(() => {
-		rendered = true;
-		$currentAnimation = sections[0];
-		const timeline = gsap.timeline({ delay: 0.5 });
-		timeline.add(fadeInLines('.line--hor', 'horizontal'));
-		timeline.add(fadeInLines('.line--vert', 'vertical'));
-		timeline.add(heroAnimation('in'));
-	});
-
-	$: if (rendered && $currentAnimation) {
-		switchSectionVisability($currentAnimation);
-	}
-
 	function nextAnimation(event: Event) {
-		const timeline = gsap.timeline();
-
-		timeline.add(heroAnimation('in'));
-		timeline.add(showcaseAnimation('in'), '>+5%');
+		 homeAnimation.currentAnimation.reverse().eventCallback('onReverseComplete', () => {
+			switchSectionVisability('section--2');
+			homeAnimation.nextAnimation.play();
+		});
+		console.log('Going to next animation');
 	}
 
 	function previousAnimation(event: Event) {
-
+		homeAnimation.currentAnimation.reverse().eventCallback('onReverseComplete', () => {
+			switchSectionVisability('section--1');
+			homeAnimation.prevAnimation.play();
+		});
 	}
+
+	onMount(() => {
+		rendered = true;
+		homeAnimation.animations = [heroAnimation, showcaseAnimation];
+		homeAnimation.init();
+		homeAnimation.currentAnimation.play();
+		// $currentAnimation = sections[0];
+
+		switchSectionVisability('section--1');
+		const timeline = gsap.timeline({ delay: 0.5 });
+		timeline.add(fadeInLines('.line--hor', 'horizontal'));
+		timeline.add(fadeInLines('.line--vert', 'vertical'));
+	});
+
+	// $: if (rendered && $currentAnimation) {
+	// 	switchSectionVisability($currentAnimation);
+	// }
 </script>
 
 <div class="grid">

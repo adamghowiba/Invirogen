@@ -3,54 +3,79 @@
 	import { gsap } from 'gsap';
 	import { onMount } from 'svelte';
 
-	const a1 = () => {
-		const t1 = gsap.timeline({ paused: true });
-		t1.to('.block--1', {
+	function a1() {
+		const timeline = gsap.timeline({ paused: true });
+		timeline.to('.block--1', {
 			yPercent: -150
 		});
-		t1.to('.block--1', {
+		timeline.to('.block--1', {
 			rotate: 90
 		});
 
-		return t1;
-	};
+		return timeline;
+	}
+
 	const a2 = () => {
-		return gsap.to('.block--2', {
+		const timeline = gsap.timeline({ paused: true });
+		timeline.to('.block--2', {
 			yPercent: -150
 		});
+		timeline.to('.block--2', {
+			rotate: 90
+		});
+
+		return timeline;
 	};
 	const a3 = () => {
-		return gsap.to('.block--3', {
-			yPercent: -100
+		const timeline = gsap.timeline({ paused: true });
+		timeline.to('.block--3', {
+			yPercent: -150
 		});
+		timeline.to('.block--3', {
+			rotate: 90
+		});
+
+		return timeline;
 	};
 
-	let animations = [a1, a2, a3];
-	let currentCount = 0;
-	let current, previous;
-	let rendered = false;
+	class AnimationSqquence {
+		count: number;
+		animations: Array<() => gsap.core.Timeline>;
+		currentAnimation: gsap.core.Timeline;
+
+		constructor(animations: Array<() => gsap.core.Timeline>, current: number = 0) {
+			this.count = current;
+			this.animations = animations;
+		}
+
+		get nextAnimation(): gsap.core.Timeline {
+			return (this.currentAnimation = this.animations[++this.count]());
+		}
+		get prevAnimation(): gsap.core.Timeline {
+			return (this.currentAnimation = this.animations[--this.count]());
+		}
+		init(): void {
+			this.currentAnimation = this.animations[this.count]();
+		}
+	}
+
+	const blockAnimation = new AnimationSqquence([a1, a2, a3], 0);
 
 	function nextAnimation() {
-		currentCount >= animations.length-1 ? (currentCount = 0) : currentCount++;
-		console.log('Next animation fired', currentCount);
+		blockAnimation.currentAnimation.reverse();
+		blockAnimation.nextAnimation.play();
 	}
+
 	function previousAnimation() {
-		currentCount -= currentCount && 1;
-		console.log('Previous Fired', currentCount);
+		blockAnimation.currentAnimation.reverse();
+		blockAnimation.prevAnimation.play();
+		console.log('Previous Fired');
 	}
 
 	onMount(() => {
-		rendered = true;
+		blockAnimation.init();
+		// blockAnimation.currentAnimation.play();
 	});
-
-	$: if (rendered) {
-		previous = current;
-		current = animations[currentCount]();
-		
-		previous && previous.reverse();
-		current.play();
-		console.log(currentCount);
-	}
 </script>
 
 <div class="wrap">

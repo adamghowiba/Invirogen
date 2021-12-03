@@ -1,21 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { gsap } from 'gsap';
-	import { globalTimeline } from '$lib/animations/controller';
 	import Button from '$lib/global/Button.svelte';
 	import type { AnimationPhase } from '$lib/types/type';
-import { currentAnimation } from '$lib/stroes/animation';
+	import { currentAnimation } from '$lib/stroes/animation';
+	
+	export let animation;
+	$currentAnimation = [...$currentAnimation, animation]
 
-	export let animation: (phase: AnimationPhase) => void;
-
-	let img, header, section;
-
-	function complete() {
-		$currentAnimation = 'section--2';
-	}
-
-	const inAnimation = () => {
-		const timeline = gsap.timeline();
+	animation = () => {
+		const timeline = gsap.timeline({paused: true});
 
 		timeline.from(img, {
 			width: 0,
@@ -29,8 +23,10 @@ import { currentAnimation } from '$lib/stroes/animation';
 		return timeline;
 	};
 
+	let img, header, section;
+
 	const outAnimation = () => {
-		const timeline = gsap.timeline({onComplete: complete});
+		const timeline = gsap.timeline();
 
 		timeline.to(img, {
 			width: 0,
@@ -45,9 +41,9 @@ import { currentAnimation } from '$lib/stroes/animation';
 		return timeline;
 	};
 
-	animation = (phase: AnimationPhase) => {
-		return phase == 'in' ? inAnimation() : outAnimation();
-	};
+	// animation = (phase: AnimationPhase) => {
+	// 	return phase == 'in' ? inAnimation() : outAnimation();
+	// };
 
 	onMount(() => {});
 </script>
