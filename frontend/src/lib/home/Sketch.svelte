@@ -3,11 +3,12 @@
 	import Button from '$lib/global/Button.svelte';
 	import { currentAnimation } from '$lib/stroes/animation';
 	import ProgressSlider from '$lib/global/ProgressSlider.svelte';
+	import ContentBlock from '$lib/global/ContentBlock.svelte';
+	import { onMount } from 'svelte';
 
 	export let animation: () => gsap.core.Timeline;
 
-	// $currentAnimation = [...$currentAnimation, animation];
-	const images = ['info_image.png', 'black_home.png', 'building.png'];
+	const images = ['sketch_1.png', 'black_home.png', 'building.png'];
 
 	let img: HTMLElement;
 	let header: HTMLElement;
@@ -36,55 +37,67 @@
 		currentShowcaseImage = images[index];
 	};
 
-	const handleMouseWheel = (event: WheelEvent) => {
-		if (event.deltaY > 0) {
-			console.log('Scrolled Down');
-		}
+	onMount(async () => {
+		const ScrollTrigger = await import('gsap/ScrollTrigger');
+		gsap.registerPlugin(ScrollTrigger.ScrollTrigger);
 
-		if (event.deltaY < 0) {
-			console.log('Scrolled Up');
-		}
-	};
+		gsap.to(".content", {
+			scrollTrigger: {
+				trigger: '.content__item--2',
+				start: "top top",
+				end: "+=500",
+				scrub: 1,
+				markers: true
+			},
+			duration: 1
+		})
+	});
 </script>
 
-<section id="section--2">
+<section id="section--3">
 	<div class="image">
 		<img bind:this={img} class="img" src="/images/{currentShowcaseImage}" alt="Hero" />
 	</div>
 
 	<div class="line line--vert" />
-	<div class=" content">
-		<header bind:this={header}>
-			<h1>Versatility at its finest</h1>
-			<ProgressSlider on:itemSelected={changeShowcaseImage} />
-			<p>
-				We know what you need when it comes to materials. You get everything delivered to your front
-				door sourced from your local building shops.
-			</p>
-			<Button>Models</Button>
-		</header>
+	<div class="content">
+		<div class="content__block">
+			{#each Array(5) as _, i}
+				<div class="content__item content__item--{i}" style={i > 0 ? 'margin-top: 100%' : ''}>
+					<ContentBlock
+						heading="Plan"
+						desc="Invirogen reviews the site to ensure it can properly
+				accomodate your Model. For additonal fees, we can assit with adding utitlites,"
+					/>
+				</div>
+			{/each}
+		</div>
 	</div>
 </section>
 
-<style>
+<style lang="scss">
 	section {
 		display: grid;
 		grid-template-columns: 50% 50%;
 		position: relative;
 		height: 100%;
 		width: 100%;
+		overflow-y: hidden;
 	}
 	.content {
 		display: flex;
+		position: relative;
 		flex-direction: column;
-		justify-content: center;
-	}
-	header {
-		max-width: 50ch;
-		margin: 0 auto;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+		overflow-y: auto;
+
+		&__block {
+			top: 30%;
+			margin-bottom: 90%;
+		}
+
+		&__item {
+			margin-top: 15%;
+		}
 	}
 	img {
 		width: 100%;

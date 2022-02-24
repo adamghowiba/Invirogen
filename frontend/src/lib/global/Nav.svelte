@@ -27,6 +27,7 @@
 	<div class="links">
 		<span>Models</span>
 		<span>Energy</span>
+		<span>Process</span>
 		<span>Products</span>
 	</div>
 	<div class="hamburger" />
@@ -45,7 +46,7 @@
 	}
 	.links {
 		display: flex;
-		gap: 3rem;
+		gap: 2rem;
 	}
 	.hamburger {
 		width: 182px;

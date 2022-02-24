@@ -27,6 +27,8 @@
   },
   "type": "module",
   "dependencies": {
-    "gsap": "^3.8.0"
+    "gsap": "^3.8.0",
+    "sass": "^1.49.8",
+    "svelte-preprocess-sass": "^2.0.1"
   }
 }

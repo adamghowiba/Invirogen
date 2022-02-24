@@ -49,7 +49,7 @@
 </script>
 
 <section bind:this={section} id="section--1">
-	<div class=" content">
+	<div class="content">
 		<header bind:this={header}>
 			<h1>Inspiring & Innovative Designs</h1>
 			<p>
