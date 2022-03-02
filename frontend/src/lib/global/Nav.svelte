@@ -29,7 +29,7 @@
 
 <nav bind:this={navbarElement}>
 	<a href="/">
-		<img class="logo" src="/images/logo.png" alt="Invirogen Logo" />
+		<img class="logo" src="/images/invirogen-logo.png" alt="Invirogen Logo" />
 	</a>
 	<div class="links">
 		<a href="/models">Models</a>
