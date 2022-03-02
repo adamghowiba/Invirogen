@@ -1,6 +1,11 @@
-<script>
+<script lang="ts">
+	import { browser } from '$app/env';
+	import { blackedOut } from '$lib/stroes/interface';
+
 	import gsap from 'gsap';
 	import { onMount } from 'svelte';
+
+	let navbarElement: HTMLElement;
 
 	function inAnimation() {
 		const timeline = gsap.timeline({
@@ -22,19 +27,20 @@
 	});
 </script>
 
-<nav>
-	<img class="logo" src="/images/logo.png" alt="Invirogen Logo" />
+<nav bind:this={navbarElement}>
+	<a href="/">
+		<img class="logo" src="/images/logo.png" alt="Invirogen Logo" />
+	</a>
 	<div class="links">
-		<span>Models</span>
-		<span>Energy</span>
-		<span>Process</span>
-		<span>Products</span>
+		<a href="/models">Models</a>
+		<a href="/process">Process</a>
+		<a href="/">Contact</a>
 	</div>
 	<div class="hamburger" />
 	<div class="line line--hor" />
 </nav>
 
-<style>
+<style lang="scss">
 	nav {
 		display: flex;
 		justify-content: space-between;
@@ -42,7 +48,15 @@
 		height: 100%;
 		position: relative;
 		align-items: center;
-		padding: 0 3rem;
+		padding: 0 20px;
+		background-color: transparent;
+		backdrop-filter: blur(10px);
+		z-index: 10;
+
+		a {
+			font-weight: 500;
+			color: var(--color-black-s1);
+		}
 	}
 	.links {
 		display: flex;

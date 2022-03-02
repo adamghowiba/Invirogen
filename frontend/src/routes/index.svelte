@@ -1,93 +1,124 @@
 <script lang="ts">
 	import { AnimationSequence, fadeInLines } from '$lib/animations/controller';
 	import Footer from '$lib/global/Footer.svelte';
-	import Nav from '$lib/global/Nav.svelte';
+	import Explore from '$lib/home/Explore.svelte';
 	import Hero from '$lib/home/Hero.svelte';
 	import Showcase from '$lib/home/Showcase.svelte';
 	import Sketch from '$lib/home/Sketch.svelte';
+	import Video from '$lib/home/Video.svelte';
+	import { scrollBehavior } from '$lib/stroes/animation';
+	import { blackedOut } from '$lib/stroes/interface';
 	import { gsap } from 'gsap';
 	import { onMount } from 'svelte';
 
-	let heroAnimation;
-	let showcaseAnimation;
-	let sketchAnimation;
+	// Animations from child components
+	let heroAnimation: gsap.core.Timeline;
+	let showcaseAnimation: gsap.core.Timeline;
+	let sketchAnimation: gsap.core.Timeline;
+	let exploreAnimation: gsap.core.Timeline;
+	let videoAnimation: gsap.core.Timeline;
 
-	let currentSection = 1;
-
-	const layouts = ['hero', 'sketch'];
-	const currentLayout = layouts[0];
-
-	const sections = ['section--1', 'section--2', 'section--3'];
+	// The index of the section thats displayed
 	let sectionIndex = 0;
-	const homeAnimation = new AnimationSequence();
 
-	function switchSectionVisability(sectionId) {
-		document.querySelectorAll('section').forEach((elem) => {
-			if (elem.id == sectionId) return (elem.style.display = 'grid');
-			elem.style.display = 'none';
+	// Currently displayed section
+	let sectionDisplay = 0;
+
+	// Check if animation is in progress
+	let animationInProgress: boolean;
+
+	let scrolledDownCount = 0;
+	let scrolledUpCount = 0;
+
+	$: animations = [
+		heroAnimation,
+		showcaseAnimation,
+		sketchAnimation,
+		exploreAnimation,
+		videoAnimation
+	];
+
+	function nextAnimation() {
+		animationInProgress = true;
+		animations[sectionIndex++].reverse().eventCallback('onReverseComplete', () => {
+			sectionDisplay++;
+			setTimeout(() => {
+				animations[sectionIndex].play().eventCallback('onComplete', () => {
+					animationInProgress = false;
+				});
+			}, 200);
 		});
-		console.log('Switched section visability to', sectionId);
-	}
-	function nextAnimation(event: Event) {
-		sectionIndex++;
-		if (sectionIndex == 1) {
-			currentLayout == layouts[1]
-			console.log('Sketch section activated');
-		}
-		homeAnimation.transition(
-			(index) => index + 1,
-			() => switchSectionVisability(`section--${++currentSection}`)
-		);
 	}
 
-	function previousAnimation(event: Event) {
-		homeAnimation.transition(
-			(index) => index - 1,
-			() => switchSectionVisability(`section--${--currentSection}`)
-		);
+	function previousAnimation() {
+		animationInProgress = true;
+		animations[sectionIndex].reverse().eventCallback('onReverseComplete', () => {
+			sectionDisplay--;
+			setTimeout(() => {
+				animations[--sectionIndex].play().eventCallback('onComplete', () => {
+					animationInProgress = false;
+				});
+			}, 200);
+		});
+		console.log('Previous animation triggerd');
 	}
+
+	const handleMouseWheel = (event: WheelEvent) => {
+		if (animationInProgress) return;
+
+		if (event.deltaY > 0 && sectionDisplay != 4 && !$scrollBehavior.down) scrolledDownCount++;
+		if (event.deltaY < 0 && !$scrollBehavior.up && sectionDisplay != 0) scrolledUpCount++;
+
+		if (scrolledDownCount == 5) {
+			nextAnimation();
+			scrolledDownCount = 0;
+		}
+
+		if (scrolledUpCount == 5) {
+			previousAnimation();
+			scrolledUpCount = 0;
+		}
+
+		console.log($scrollBehavior, scrolledUpCount);
+	};
 
 	onMount(() => {
-		homeAnimation.refresh([heroAnimation, showcaseAnimation, sketchAnimation]);
-		homeAnimation.current.play();
-
-		switchSectionVisability('section--1');
 		const timeline = gsap.timeline({ delay: 0.5 });
 		timeline.add(fadeInLines('.line--hor', 'horizontal'));
 		timeline.add(fadeInLines('.line--vert', 'vertical'));
+
+		timeline.eventCallback('onComplete', () => {
+			heroAnimation.play();
+			// exploreAnimation.play();
+		});
 	});
-
-	const handleMouseWheel = (event: WheelEvent) => {
-		if (event.deltaY > 0) {
-			console.log('Scrolled Down');
-		}
-
-		if (event.deltaY < 0) {
-			console.log('Scrolled Up');
-		}
-	};
 </script>
 
-<!-- <svelte:window on:wheel={handleMouseWheel} /> -->
+<svelte:window on:wheel={handleMouseWheel} />
 
-<div class="grid">
-	<Nav />
+{#if sectionDisplay == 0}
 	<Hero bind:animation={heroAnimation} />
+{/if}
+{#if sectionDisplay == 1}
 	<Showcase bind:animation={showcaseAnimation} />
-	{#if sectionIndex == 2}
-		<Sketch bind:animation={sketchAnimation} />
-	{/if}
-	<Footer on:next={nextAnimation} on:previous={previousAnimation} />
-</div>
+{/if}
+{#if sectionDisplay == 2}
+	<Sketch bind:animation={sketchAnimation} />
+{/if}
+{#if sectionDisplay == 3}
+	<Explore bind:animation={exploreAnimation} />
+{/if}
+{#if sectionDisplay == 4}
+	<Video bind:animation={videoAnimation} />
+{/if}
+
+<Footer />
 
 <style>
-	.grid {
+	/* .grid {
 		display: grid;
 		grid-template-rows: 80px 1fr 80px;
 		height: 100%;
 		overflow: hidden;
-	}
-	.space {
-		height: 1vh;
-	}
+	} */
 </style>

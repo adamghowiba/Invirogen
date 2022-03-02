@@ -14,7 +14,7 @@ body {
     color: var(--color-darkgray-s2);
 }
 .line {
-    background-color: #2d2d2d;
+    background-color: var(--tran-4);
 }
 h1, h2, h3, h4, h5, p {
     margin: 0;
@@ -44,6 +44,10 @@ h6 {
 }
 p {
     line-height: 1.45;
+}
+a {
+    text-decoration: none;
+    color: inherit;
 }
 
 ::-webkit-scrollbar {

@@ -2,13 +2,14 @@
 	import { onMount } from 'svelte';
 	import { gsap } from 'gsap';
 	import Button from '$lib/global/Button.svelte';
-	import type { AnimationPhase } from '$lib/types/type';
-	import { currentAnimation } from '$lib/stroes/animation';
-	
-	export let animation;
-	$currentAnimation = [...$currentAnimation, animation]
 
-	animation = () => {
+	export let animation: gsap.core.Timeline;
+	
+	let img: HTMLElement;
+	let header: HTMLElement;
+	let section: HTMLElement;
+
+	onMount(() => {
 		const timeline = gsap.timeline({paused: true});
 
 		timeline.from(img, {
@@ -20,32 +21,11 @@
 			opacity: 0,
 			duration: 0.45
 		});
-		return timeline;
-	};
 
-	let img, header, section;
+		animation = timeline;
+	});
 
-	const outAnimation = () => {
-		const timeline = gsap.timeline();
 
-		timeline.to(img, {
-			width: 0,
-			duration: 0.6
-		});
-		timeline.to(header, {
-			yPercent: -20,
-			opacity: 0,
-			duration: 0.45
-		});
-
-		return timeline;
-	};
-
-	// animation = (phase: AnimationPhase) => {
-	// 	return phase == 'in' ? inAnimation() : outAnimation();
-	// };
-
-	onMount(() => {});
 </script>
 
 <section bind:this={section} id="section--1">
@@ -60,6 +40,7 @@
 			<Button>Get Started</Button>
 		</header>
 	</div>
+
 	<div class="line line--vert" />
 	<div class="image">
 		<img bind:this={img} class="img" src="/images/hero_image.png" alt="Hero" />
@@ -69,13 +50,14 @@
 <style>
 	section {
 		display: grid;
-		grid-template-columns: 50% 50%;
+		grid-template-columns: 1fr 1fr;
 		position: relative;
 		height: 100%;
 		width: 100%;
 	}
 	.content {
 		display: flex;
+		padding: 20px;
 		flex-direction: column;
 		justify-content: center;
 	}

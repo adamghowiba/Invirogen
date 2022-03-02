@@ -1,25 +1,37 @@
 <script lang="ts">
+import { browser } from '$app/env';
+
 	import { createEventDispatcher, onMount } from 'svelte';
+
+	export let itemSelected = null;
 
 	let optionsElement: HTMLElement;
 	let progressLineElement: HTMLElement;
 
-    const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	const options = ['Home', 'Office', 'Business'] as const;
 
 	const setSelectedOption = (index: number) => {
-		if (index > options.length || index < 0) return;
+		if (index > options.length - 1 || index < 0) return;
 
 		const optionsItem = optionsElement.querySelectorAll('.options__item');
 		const selectedItem = optionsItem[index] as HTMLElement;
-		
-        progressLineElement.style.width = `${selectedItem.offsetLeft + selectedItem.clientWidth}px`;
-        console.log(selectedItem.offsetLeft + selectedItem.clientWidth);
-        
-        dispatch('itemSelected', index);
-    };
-    
+
+		progressLineElement.style.width = `${selectedItem.offsetLeft + selectedItem.clientWidth}px`;
+		console.log(selectedItem.offsetLeft + selectedItem.clientWidth);
+
+		dispatch('itemSelected', index);
+	};
+
+	$: if (browser && (itemSelected || itemSelected === 0)) {
+		// console.log(itemSelected);
+		setSelectedOption(itemSelected);
+	}
+
+	onMount(() => {
+		itemSelected = 0;
+	})
 </script>
 
 <div class="slider">
@@ -43,7 +55,7 @@
 
 		&__line {
 			height: 100%;
-            width: 80px;
+			width: 80px;
 			background-color: black;
 			transition: width 0.25s ease-out;
 		}
@@ -51,7 +63,7 @@
 	.options {
 		display: flex;
 		justify-content: space-between;
-        margin-top: 5px;
+		margin-top: 5px;
 
 		&__item {
 			display: flex;

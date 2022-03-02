@@ -1,20 +1,26 @@
 <script lang="ts">
-	import { gsap } from 'gsap';
 	import Button from '$lib/global/Button.svelte';
-	import { currentAnimation } from '$lib/stroes/animation';
 	import ProgressSlider from '$lib/global/ProgressSlider.svelte';
+	import { scrollBehavior } from '$lib/stroes/animation';
+	import { gsap } from 'gsap';
+	import { onDestroy, onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
-	export let animation: () => gsap.core.Timeline;
+	export let animation: gsap.core.Timeline;
 
-	// $currentAnimation = [...$currentAnimation, animation];
-	const images = ['info_image.png', 'black_home.png', 'building.png'];
+	// TODO Add Image slide over animation
+	const IMAGES = ['info_image.png', 'black_home.png', 'building.png'];
 
 	let img: HTMLElement;
 	let header: HTMLElement;
 
-	let currentShowcaseImage = images[0];
+	let scrolledDownCount = 0;
+	let scrolledUpCount = 0;
 
-	animation = () => {
+	let currentShowcaseImage = IMAGES[0];
+	let itemSelected: number = null;
+
+	onMount(() => {
 		const timeline = gsap.timeline({ paused: true });
 
 		timeline.from(img, {
@@ -27,25 +33,53 @@
 			duration: 0.45
 		});
 
-		return timeline;
-	};
+		animation = timeline;
+	});
 
 	const changeShowcaseImage = (event) => {
 		const index = event.detail;
 
-		currentShowcaseImage = images[index];
+		currentShowcaseImage = IMAGES[index];
 	};
 
 	const handleMouseWheel = (event: WheelEvent) => {
-		if (event.deltaY > 0) {
-			console.log('Scrolled Down');
+		// Scrolled Down
+		if (event.deltaY > 0) scrolledDownCount++;
+
+		// Scrolled Up
+		if (event.deltaY < 0) scrolledUpCount++;
+
+		if (scrolledDownCount >= 2) {
+			scrolledDownCount = 0;
+			itemSelected++;
 		}
 
-		if (event.deltaY < 0) {
-			console.log('Scrolled Up');
+		if (scrolledUpCount >= 2) {
+			scrolledUpCount = 0;
+			itemSelected--;
 		}
 	};
+
+	$: if (itemSelected == 0) {
+		scrollBehavior.freeze('down');
+		scrollBehavior.unfreeze('up');
+	}
+
+	$: if (itemSelected == 1) {
+		scrollBehavior.freeze('both');
+	}
+
+	$: if (itemSelected >= 2) {
+		scrollBehavior.freeze('up');
+		scrollBehavior.unfreeze('down');
+	}
+
+	onDestroy(() => {
+		scrollBehavior.unfreeze('both');
+	});
 </script>
+
+<svelte:window on:wheel={handleMouseWheel} />
 
 <section id="section--2">
 	<div class="image">
@@ -53,20 +87,20 @@
 	</div>
 
 	<div class="line line--vert" />
-	<div class=" content">
+	<div class="content">
 		<header bind:this={header}>
 			<h1>Versatility at its finest</h1>
-			<ProgressSlider on:itemSelected={changeShowcaseImage} />
+			<ProgressSlider on:itemSelected={changeShowcaseImage} bind:itemSelected />
 			<p>
 				We know what you need when it comes to materials. You get everything delivered to your front
 				door sourced from your local building shops.
 			</p>
-			<Button>Models</Button>
+			<Button on:click={() => (itemSelected = 0)}>Models</Button>
 		</header>
 	</div>
 </section>
 
-<style>
+<style lang="scss">
 	section {
 		display: grid;
 		grid-template-columns: 50% 50%;
@@ -75,6 +109,7 @@
 		width: 100%;
 	}
 	.content {
+		padding: 20px;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;

@@ -1,15 +1,14 @@
 <script lang="ts">
-	import Button from './Button.svelte';
+	import Button from '../global/Button.svelte';
 
 	export let heading: string;
-	export let desc: string;
 	export let button: { text: string; link: string } = null;
 </script>
 
 <article>
 	<h1>{heading}</h1>
 	<p>
-		{desc}
+		<slot />
 	</p>
 	{#if button}
 		<Button href={button.link}>{button.text}</Button>
@@ -24,6 +23,5 @@
 		flex-direction: column;
 		gap: 0.5rem;
 		overflow-y: auto;
-
 	}
 </style>
