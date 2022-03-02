@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
 *, *:before, *:after {
     box-sizing: border-box;
 }
@@ -8,15 +10,87 @@ body, html, #svelte {
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Century Gothic';
+    font-family: 'Montserrat', sans-serif;
+    color: var(--color-darkgray-s2);
 }
-
-h1, h2, h3, h4, h5 {
+.line {
+    background-color: var(--tran-4);
+}
+h1, h2, h3, h4, h5, p {
     margin: 0;
     padding: 0;
+}
+h1, h2, h3, h4, h5 {
+    font-weight: 500;
+    color: var(--color-black-s1);
+}
+h1 {
+    font-size: var(--text-h1);
+}
+h2 {
+    font-size: var(--text-h2);
+}
+h3 {
+    font-size: var(--text-h3);
+}
+h4 {
+    font-size: var(--text-h4);
+}
+h5 {
+    font-size: var(--text-h5);
+}
+h6 {
+    font-size: var(--text-h6);
+}
+p {
+    line-height: 1.45;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+::-webkit-scrollbar {
+    appearance: none;
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+    background: #00000033;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(136, 136, 136, 0.226);
 }
 
 
 :root {
     --tran-4: rgba(0, 0, 0, 0.16);
+
+    --color-black-s1: #000000;
+    --color-black-s2: #2D2D2D;
+
+    --color-darkgray-s1: #4A4A4A;
+    --color-darkgray-s2: #7D7D7D;
+
+    --color-gray-s1: #C4C4C4;
+    --color-gray-s2: #E1E1E1;
+    --color-gray-s3: #F7F7F7;
+    --color-gray-s4: #FAFAFA;
+    
+    --color-blue: #306EBF;
+    --color-red: #FF4D4D;
+
+    /* TEXT */
+
+    --text-h1: 34.84px;
+    --text-h2: 29px;
+    --text-h3: 24.2px;
+    --text-h4: 20.2px;
+    --text-h5: 16.8px;
+    --text-h6: 14px;
+    --text-caption: 11.7px;
+    --text-body: 14px;
+    --text-body-sm: 12px;
+
+    
+
 }

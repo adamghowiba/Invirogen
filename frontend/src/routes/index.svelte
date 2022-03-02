@@ -1,139 +1,124 @@
 <script lang="ts">
-	import Layout1 from '$lib/layouts/layout1.svelte';
-	import Layout2 from '$lib/layouts/layout2.svelte';
-	import {
-		gsap,
-		Power0,
-		Power1,
-		Power2,
-		Power3,
-		Power4,
-		Linear,
-		Quad,
-		Cubic,
-		Quart,
-		Quint,
-		Strong,
-		Elastic,
-		Back,
-		SteppedEase,
-		Bounce,
-		Sine,
-		Expo,
-		Circ
-	} from 'gsap';
+	import { AnimationSequence, fadeInLines } from '$lib/animations/controller';
+	import Footer from '$lib/global/Footer.svelte';
+	import Explore from '$lib/home/Explore.svelte';
+	import Hero from '$lib/home/Hero.svelte';
+	import Showcase from '$lib/home/Showcase.svelte';
+	import Sketch from '$lib/home/Sketch.svelte';
+	import Video from '$lib/home/Video.svelte';
+	import { scrollBehavior } from '$lib/stroes/animation';
+	import { blackedOut } from '$lib/stroes/interface';
+	import { gsap } from 'gsap';
 	import { onMount } from 'svelte';
 
-	/* INTITAL FINDINGS
-    
-    - Maybe we should keep track of weather the line is a center line, or bottom line. Aka how it's aligned in the contianer
-    - Layouts need to be able to understand how to react based on previous layout.
-    - Layouts should only change once the animation is done. 
-    - This isn't going to be easy. 
-    
-    
-    */
+	// Animations from child components
+	let heroAnimation: gsap.core.Timeline;
+	let showcaseAnimation: gsap.core.Timeline;
+	let sketchAnimation: gsap.core.Timeline;
+	let exploreAnimation: gsap.core.Timeline;
+	let videoAnimation: gsap.core.Timeline;
 
-	let animate = true;
-	let l1LayoutAnimation: gsap.core.Timeline;
-	let l1ContentAnimation: gsap.core.Timeline;
+	// The index of the section thats displayed
+	let sectionIndex = 0;
 
-	type AnimationPhase = 'in' | 'out';
-	type Layout = 'l1' | 'l2' | 'l3' | 'l5';
-	let currentLayout: Layout = 'l1';
+	// Currently displayed section
+	let sectionDisplay = 0;
 
-	function changeLayout(event) {
-		const layout: Layout = event.detail;
-		const tl = gsap.timeline();
+	// Check if animation is in progress
+	let animationInProgress: boolean;
 
-		if (layout == 'l1') {
-			tl.fromTo('.line--bbl', { height: '100%' }, { height: 0 });
-			tl.fromTo('.line--bbt', { width: '100%' }, { width: 0 });
-			tl.to('.line--body', { height: '100%' });
-			if (currentLayout == 'l2') {
-				tl.to('.line--body', { left: '+=30%' });
-			}
-		}
+	let scrolledDownCount = 0;
+	let scrolledUpCount = 0;
 
-		if (layout == 'l2') {
-			tl.to('.line--body', { left: '-=30%' });
-			playL1Content('out');
-		}
+	$: animations = [
+		heroAnimation,
+		showcaseAnimation,
+		sketchAnimation,
+		exploreAnimation,
+		videoAnimation
+	];
 
-		if (layout == 'l5') {
-			tl.to('.line--body', { height: 0 });
-			tl.fromTo('.line--bbt', { width: 0 }, { width: '100%' });
-			tl.fromTo('.line--bbl', { height: 0 }, { height: '100%' });
-		}
-		tl.eventCallback('onComplete', () => {
-			currentLayout = layout;
+	function nextAnimation() {
+		animationInProgress = true;
+		animations[sectionIndex++].reverse().eventCallback('onReverseComplete', () => {
+			sectionDisplay++;
+			setTimeout(() => {
+				animations[sectionIndex].play().eventCallback('onComplete', () => {
+					animationInProgress = false;
+				});
+			}, 200);
 		});
 	}
 
-	function playL1Content(phase: AnimationPhase) {
-		const contentTl = gsap.timeline({
-			defaults: {
-				duration: 0.7,
-				ease: 'power1'
-			}
+	function previousAnimation() {
+		animationInProgress = true;
+		animations[sectionIndex].reverse().eventCallback('onReverseComplete', () => {
+			sectionDisplay--;
+			setTimeout(() => {
+				animations[--sectionIndex].play().eventCallback('onComplete', () => {
+					animationInProgress = false;
+				});
+			}, 200);
 		});
-		/* Content Animation */
-		if (phase == 'in') {
-			contentTl.to('.image-curtain', {
-				ease: Expo.easeInOut,
-				width: 0,
-				duration: 1.85
-			});
-			contentTl.fromTo(
-				['h1', 'p'],
-				{ opacity: 0, yPercent: -60 },
-				{ opacity: 1, yPercent: 0, stagger: 0.4 },
-				'-=60%'
-			);
-		}
-		if (phase == 'out') {
-			contentTl.to('.image-curtain', {
-				ease: Expo.easeInOut,
-				width: '100%',
-				duration: 1.85
-			});
-			contentTl.to('h1', { opacity: 0, yPercent: -60 }, '<-=5%');
-			contentTl.to('p', { opacity: 0, yPercent: -60 }, '>');
-		}
-		return contentTl;
+		console.log('Previous animation triggerd');
 	}
 
-	function playL1Animation(phase: AnimationPhase): gsap.core.Timeline {
-		const lineTl = gsap.timeline({
-			defaults: {
-				duration: 0.55,
-				ease: Linear.easeInOut
-			}
-		});
+	const handleMouseWheel = (event: WheelEvent) => {
+		if (animationInProgress) return;
 
-		/* Layout Animation */
-		if (phase == 'in') {
-			lineTl.fromTo('.line--scroll', { height: 0 }, { height: '100%' });
-			lineTl.fromTo(['.line--nav', '.line--footer'], { width: 0 }, { width: '100%' }, '>');
-			lineTl.fromTo('.line--body', { height: 0 }, { height: '100%' }, '>');
-		}
-		if (phase == 'out') {
-			lineTl.to('.line--scroll', { height: 0 });
-			lineTl.to('.line--hor', { width: 0 }, '>');
-			lineTl.to('.line--body', { height: 0 }, '>');
+		if (event.deltaY > 0 && sectionDisplay != 4 && !$scrollBehavior.down) scrolledDownCount++;
+		if (event.deltaY < 0 && !$scrollBehavior.up && sectionDisplay != 0) scrolledUpCount++;
+
+		if (scrolledDownCount == 5) {
+			nextAnimation();
+			scrolledDownCount = 0;
 		}
 
-		return lineTl;
-	}
+		if (scrolledUpCount == 5) {
+			previousAnimation();
+			scrolledUpCount = 0;
+		}
+
+		console.log($scrollBehavior, scrolledUpCount);
+	};
 
 	onMount(() => {
-		// l1LayoutAnimation = playL1Animation('in');
-		playL1Animation('in');
-		playL1Content('in');
+		const timeline = gsap.timeline({ delay: 0.5 });
+		timeline.add(fadeInLines('.line--hor', 'horizontal'));
+		timeline.add(fadeInLines('.line--vert', 'vertical'));
+
+		timeline.eventCallback('onComplete', () => {
+			heroAnimation.play();
+			// exploreAnimation.play();
+		});
 	});
 </script>
 
-<Layout2 on:changeLayout={changeLayout} bind:layout={currentLayout} />
+<svelte:window on:wheel={handleMouseWheel} />
+
+{#if sectionDisplay == 0}
+	<Hero bind:animation={heroAnimation} />
+{/if}
+{#if sectionDisplay == 1}
+	<Showcase bind:animation={showcaseAnimation} />
+{/if}
+{#if sectionDisplay == 2}
+	<Sketch bind:animation={sketchAnimation} />
+{/if}
+{#if sectionDisplay == 3}
+	<Explore bind:animation={exploreAnimation} />
+{/if}
+{#if sectionDisplay == 4}
+	<Video bind:animation={videoAnimation} />
+{/if}
+
+<Footer />
 
 <style>
+	/* .grid {
+		display: grid;
+		grid-template-rows: 80px 1fr 80px;
+		height: 100%;
+		overflow: hidden;
+	} */
 </style>
