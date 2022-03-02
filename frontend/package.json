@@ -30,7 +30,8 @@
   "type": "module",
   "dependencies": {
     "gsap": "^3.8.0",
-    "sass": "^1.49.8",
+    "node-sass": "^7.0.1",
+    "sass": "^1.49.9",
     "svelte-preprocess-sass": "^2.0.1"
   }
 }
