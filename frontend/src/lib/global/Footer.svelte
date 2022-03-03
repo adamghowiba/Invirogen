@@ -13,7 +13,7 @@
 <footer bind:this={footerElement}>
 	<div class="line line--hor" />
 	<slot>
-		<Button on:click> Explore Models</Button>
+		<Button href="/models">Explore Models</Button>
 	</slot>
 	<!-- <Button on:click={() => dispatch('previous')}>PRevious Transition</Button> -->
 	<!-- <Button on:click={() => dispatch('next')}>Next Transition</Button> -->

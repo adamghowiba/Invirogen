@@ -25,22 +25,62 @@
 	import Carousel from '$lib/global/Carousel.svelte';
 	import ModelSpec from '$lib/model/ModelSpec.svelte';
 	import FeatureCard from '$lib/global/FeatureCard.svelte';
+	import Modal from '$lib/global/Modal.svelte';
+	import { overlay } from '$lib/stroes/interface';
 
 	export let modelData: Models;
 	export let modelName: string;
 
 	let featureModalOpen = false;
+
+	const FEATURE_CARDS = [
+		{
+			imgSrc: '/images/building.png',
+			title: 'Feature Title',
+			desc: 'Progressively actualize next-generation supply chains for principle-centered information. Dramatically cultivate value-added innovation vis-a-vis backward-compatible collaboration and idea-sharing.'
+		},
+		{
+			imgSrc: '/images/hero_image.png',
+			title: 'Feature Title',
+			desc: 'Progressively actualize next-generation supply chains for principle-centered information. Dramatically cultivate value-added innovation vis-a-vis backward-compatible collaboration and idea-sharing.'
+		},
+		{
+			imgSrc: '/images/sketch_2.png',
+			title: 'Feature Title',
+			desc: 'Progressively actualize next-generation supply chains for principle-centered information. Dramatically cultivate value-added innovation vis-a-vis backward-compatible collaboration and idea-sharing.'
+		},
+		{
+			imgSrc: '/images/wideshot.png',
+			title: 'Feature Title',
+			desc: 'Progressively actualize next-generation supply chains for principle-centered information. Dramatically cultivate value-added innovation vis-a-vis backward-compatible collaboration and idea-sharing.'
+		},
+		{
+			imgSrc: '/images/building.png',
+			title: 'Feature Title',
+			desc: 'Progressively actualize next-generation supply chains for principle-centered information. Dramatically cultivate value-added innovation vis-a-vis backward-compatible collaboration and idea-sharing.'
+		}
+	];
+
+	const closeModal = () => {
+		$overlay = false;
+		featureModalOpen = false;
+	};
+
+	const openModal = () => {
+		$overlay = true;
+		featureModalOpen = true;
+	};
 </script>
 
 {#if featureModalOpen}
-	<Carousel>
-		<FeatureCard color="blue"/>
-		<FeatureCard color="green"/>
-		<FeatureCard color="yellow"/>
-		<FeatureCard color="coral"/>
-		<FeatureCard color="gray"/>
+	<Carousel slideCount={FEATURE_CARDS.length}>
+		{#each FEATURE_CARDS as cardData}
+			<Modal on:click={closeModal}>
+				<FeatureCard imgSrc={cardData.imgSrc} title={cardData.title} desc={cardData.desc} />
+			</Modal>
+		{/each}
 	</Carousel>
-	{/if}
+{/if}
 <section>
 	<div class="top">
 		<div class="arrow arrow--right">
@@ -76,9 +116,7 @@
 			Download Specs
 		</Button>
 		<Button color="blue" href="/design/{encodeURIComponent(modelName)}">Design Your Model</Button>
-		<Button color="light" on:click={() => (featureModalOpen = !featureModalOpen)}
-			>Feature Details</Button
-		>
+		<Button color="light" on:click={() => openModal()}>Feature Details</Button>
 	</div>
 </Footer>
 
